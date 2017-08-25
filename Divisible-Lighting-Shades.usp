@@ -3,7 +3,7 @@
   (Fill in comments below)
 *******************************************************************************************/
 /*
-Dealer Name:fsg	
+Dealer Name:
 System Name:
 System Number:
 Programmer:kdo
@@ -51,15 +51,6 @@ DIGITAL_OUTPUT _skip_, _skip_, RM1_ShadesUp_Go, RM1_ShadesDown_Go, RM1_ShadesSto
 	_skip_, _skip_, RM1_LtPresets_fb[NUMPRESETS], _skip_, RM2_LtPresets_fb[NUMPRESETS];
 ANALOG_OUTPUT _skip_, _skip_, _skip_, _skip_, RM1_LtLevel_Go[NUMZONES], _skip_, RM2_LtLevel_Go[NUMZONES];
 
-
-
-
-
-
-
-
-
-
 /*******************************************************************************************
   Global Variables
   (Uncomment and declare global variables as needed)
@@ -67,24 +58,9 @@ ANALOG_OUTPUT _skip_, _skip_, _skip_, _skip_, RM1_LtLevel_Go[NUMZONES], _skip_, 
          For example, in Function Main: myString = "";
 *******************************************************************************************/
 INTEGER RoomState;
-// LONG_INTEGER
-// SIGNED_INTEGER
-// SIGNED_LONG_INTEGER
-// STRING
 
-/*******************************************************************************************
-  Functions
-  (Add any additional functions here)
-  Note:  Functions must be physically placed before the location in
-         the code that calls them.
-*******************************************************************************************/
-/*
-Function MyFunction1()
-{
-    // TODO:  Add local variable declarations here
 
-    // TODO:  Add code here
-}
+
 /*******************************************************************************************
   Event Handlers
   (Uncomment and declare additional event handlers as needed)
