@@ -1,0 +1,115 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:kdo
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "DM_Muli_Switch"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+#DIGITAL_EXPAND		InputsWithOutputs 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#DEFINE_CONSTANT 	NUMBEROFDEST	7 
+
+
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+// DIGITAL_INPUT clear;
+DIGITAL_INPUT _skip_, _skip_,Destinations[NUMBEROFDEST];
+ANALOG_INPUT _skip_, _skip_, _skip_, Source_In; 
+// STRING_INPUT 
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT _skip_, _skip_, Destinations_fb[NUMBEROFDEST]; 
+ANALOG_OUTPUT _skip_, _skip_, _skip_, DM_Out[NUMBEROFDEST]; 
+// STRING_OUTPUT 
+
+
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+Function Clear_fb()
+{
+	integer i;
+	for (i = 1 to NUMBEROFDEST)
+	{
+		Destinations_fb[i] = 0;
+	}
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Destinations
+{
+	integer x;
+	x = getlastmodifiedarrayindex();
+	Destinations_fb[x] = !Destinations_fb[x];   
+}
+
+CHANGE Source_In
+{
+	integer j;
+	integer k;
+	k = Source_In;
+	for (j = 1 to NUMBEROFDEST)
+	{
+    	if(Destinations_fb[j])
+		{
+        	DM_Out[j] = k;
+		}
+	}
+	Clear_fb();
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	WaitForInitializationComplete();
+	Delay(50);
+	Clear_fb();
+}
+
+
