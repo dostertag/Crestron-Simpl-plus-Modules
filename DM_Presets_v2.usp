@@ -1,0 +1,171 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:kdo
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "DM_Presets_v2"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "Daniels" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_NONVOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   Unaffected outputs need to be set to "unaffected" value via analog init
+
+#HELP_END
+*/
+
+#DEFINE_CONSTANT	DESTINATIONS	32
+#DEFINE_CONSTANT	NUMPRESETS		5
+#DEFINE_CONSTANT 	NUMLTGPRESETS 	4
+#DEFINE_CONSTANT 	ZONES 			4
+#DEFINE_CONSTANT 	AUDIODESTINATIONS 10
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_, Save, _skip_, Recall_Preset[NUMPRESETS];
+DIGITAL_INPUT _skip_, Set_Presets[NUMPRESETS], _skip_, _skip_, _skip_; 
+ANALOG_INPUT  _skip_, _skip_, Video_Source_In[DESTINATIONS], _skip_, _skip_, audioIN[AUDIODESTINATIONS], _skip_, _skip_, _skip_;
+// DIGITAL_INPUT _skip_, _skip_, Save;
+// STRING_INPUT 
+// BUFFER_INPUT 
+      
+STRING_OUTPUT _skip_, command$;
+DIGITAL_OUTPUT _skip_, _skip_, _skip_, _skip_, _skip_, _skip_, Set_Preset_FB[NUMPRESETS];
+ANALOG_OUTPUT _skip_, _skip_, _skip_, _skip_, _skip_, _skip_, Video_Source_Out[DESTINATIONS];
+ANALOG_OUTPUT _skip_, _skip_, audioOUT[AUDIODESTINATIONS];
+  
+// STRING_OUTPUT 
+
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+INTEGER_PARAMETER unaffected;
+                      
+/*******************************************************************************************
+  Parameter Properties
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES unaffected
+   propValidUnits = unitDecimal;  
+   propDefaultUnit = unitDecimal;  
+   propDefaultValue = 33d;  
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  Structure Definitions
+*******************************************************************************************/
+
+
+/*******************************************************************************************
+  Global Variables
+*******************************************************************************************/
+INTEGER aSave[NUMPRESETS][DESTINATIONS];
+INTEGER selectedPreset; // Preset number
+INTEGER audioSave[NUMPRESETS][AUDIODESTINATIONS];
+NONVOLATILE STRING firstTime$[10];
+
+/*******************************************************************************************
+  Functions
+*******************************************************************************************/
+
+
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+
+
+PUSH Set_Presets
+{
+  selectedPreset = GetLastModifiedArrayIndex();
+	setArray(Set_Preset_FB, OFF);
+	Set_Preset_FB[selectedPreset] = ON;
+}
+
+
+PUSH Save
+{
+    integer i, j;
+    for (i = 0 to DESTINATIONS)
+    {
+        aSave[selectedPreset][i] = Video_Source_In[i];      // save all values, even the unaffected ones
+    }  
+    
+    for (j = 0 to ZONES)
+    {
+        audioSave[selectedPreset][j] = audioIN[j];
+    }
+    
+}
+
+PUSH Recall_Preset
+{
+    integer i, j;
+    selectedPreset = GetLastModifiedArrayIndex();
+    for (i = 0 to DESTINATIONS)
+    {
+        if (aSave[selectedPreset][i] <> unaffected) {
+            Video_Source_Out[i] = aSave[selectedPreset][i];
+		  } 
+    }
+    
+    for (j = 0 to ZONES)
+    {
+        if (audioSave[selectedPreset][j] <> unaffected) {
+            audioOUT[j] = audioSave[selectedPreset][j];
+		  }
+    }
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    
+    WaitForInitializationComplete();
+	  if(firstTime$ <> "first") {
+        SETARRAY(aSave, unaffected);
+		    firstTime$ = "first";
+	}
+    
+}
+
+
+
