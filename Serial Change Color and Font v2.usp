@@ -1,0 +1,196 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:kdo
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Serial Change Color and Font v2"
+
+#DEFINE_CONSTANT numInputs	10
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_NONVOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT 	_skip_, _skip_, _skip_, _skip_, 
+				_skip_, _skip_, _skip_, _skip_, 
+				_skip_, _skip_, _skip_, _skip_,
+				_skip_, _skip_, _skip_, _skip_,
+				underlineFeedBack, _skip_,
+				showNewColor[numInputs];
+
+//STRING_INPUT _skip_, textIn$[numInputs][30];
+// BUFFER_INPUT 
+
+// DIGITAL_OUTPUT 
+// ANALOG_OUTPUT 
+STRING_OUTPUT 	_skip_, _skip_, _skip_, _skip_,
+				_skip_, _skip_, _skip_, _skip_,
+				_skip_, _skip_, _skip_, _skip_,
+				_skip_, _skip_, _skip_, _skip_, 
+				_skip_, _skip_,
+				textOut$[numInputs];
+
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+STRING_PARAMETER 	font[50];
+INTEGER_PARAMETER	normalFontSize;
+INTEGER_PARAMETER	fbFontSize;
+STRING_PARAMETER 	defaultColor[8];
+STRING_PARAMETER	fbColor[8];
+STRING_PARAMETER	menuNames[numInputs][25];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES font
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "Crestron Sans Pro";  
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES normalFontSize
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propDefaultValue = 14d;  
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES fbFontSize
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propDefaultValue = 24d;  
+#END_PARAMETER_PROPERTIES
+                    
+#BEGIN_PARAMETER_PROPERTIES defaultColor
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "000000";  
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES fbColor
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "c62762";  
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES menuNames
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "Menu Item";  
+#END_PARAMETER_PROPERTIES
+
+
+
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING	savedStrings$[numInputs][100];
+INTEGER showUnderline;
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH underlineFeedBack
+{
+	showUnderline = 1;
+}
+RELEASE underlineFeedBack
+{
+	showUnderline = 0;
+}
+
+
+PUSH showNewColor
+{
+	integer n;
+	n = getLastModifiedArrayIndex();
+	if(showUnderline) {
+    		makeString(textOut$[n], "<FONT size=\x22%d\x22 face=\x22%s\x22 color=\x22#%s\x22><U>%s</U></FONT>", 
+							fbFontSize, 
+							font,
+							fbColor, 
+							savedStrings$[n]);
+
+	} else {
+    		makeString(textOut$[n], "<FONT size=\x22%d\x22 face=\x22%s\x22 color=\x22#%s\x22>%s</FONT>", 
+							fbFontSize, 
+							font,
+							fbColor, 
+							savedStrings$[n]);
+
+	}
+}
+
+RELEASE showNewColor
+{
+	integer n;
+	n = getLastModifiedArrayIndex();
+	makeString(textOut$[n], "<FONT size=\x22%d\x22 face=\x22%s\x22 color=\x22#%s\x22>%s</FONT>", 
+							normalFontSize,
+							font, 
+							defaultColor, 
+							savedStrings$[n]);
+}
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+	integer i, showUnderline;
+	showUnderline = 0;
+    WaitForInitializationComplete();
+	delay(300);
+	for (i = 1 TO numInputs) {
+    	savedStrings$[i] = menuNames[i];
+		makeString(textOut$[i], "<FONT size=\x22%d\x22 face=\x22%s\x22 color=\x22#%s\x22>%s</FONT>", 
+								normalFontSize,
+								font, 
+								defaultColor, 
+								savedStrings$[i]);		
+		trace("%s", savedStrings$[i]);
+	}
+}
+
+
