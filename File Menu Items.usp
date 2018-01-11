@@ -1,0 +1,192 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:kdo
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Text and Icons"
+#ENABLE_TRACE
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+    add Menu.txt file to NVRAM -> (program tag folder)
+    example input:
+	87-Lighting
+	1-Presentation
+	3-Video Conference
+	[END]\n  -- has to have the newline after closing brace
+#HELP_END
+
+
+#DEFINE_CONSTANT 		FILE_BUF_LENGTH		1500
+#DEFINE_CONSTANT		STRING_NAME_LENGTH	25
+#DEFINE_CONSTANT		MAX_NUM_BUTTONS			100
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_, startupDelayPulse, _skip_; 
+// ANALOG_INPUT 
+// STRING_INPUT 
+// BUFFER_INPUT 
+
+// DIGITAL_OUTPUT 
+ANALOG_OUTPUT _skip_, numItemsInList, _skip_, buttonIcon[MAX_NUM_BUTTONS], _skip_;
+STRING_OUTPUT buttonText[MAX_NUM_BUTTONS];
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+STRING_PARAMETER File_Name[STRING_NAME_LENGTH];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES File_Name
+   propValidUnits = unitString; // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   propDefaultUnit = unitString; // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   propDefaultValue = "Menu_Items";  // or, propDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+STRUCTURE MenuItem
+{
+	String buttonText[STRING_NAME_LENGTH];
+	Integer iconNum;
+};
+
+MenuItem menuObject[MAX_NUM_BUTTONS];
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING fileNameWithPath[STRING_NAME_LENGTH];
+SIGNED_INTEGER nfileHandle;
+STRING stringBuffer[FILE_BUF_LENGTH];
+STRING tempString[FILE_BUF_LENGTH];
+INTEGER numObjects;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function readLines()
+{
+	String tempNum[STRING_NAME_LENGTH];
+	String tempText[STRING_NAME_LENGTH];
+	Integer i;
+	for (i = 1 to MAX_NUM_BUTTONS) {
+		tempText = remove("\n", tempString);
+		if(find("[END]", tempText)) {
+        	break;
+		} else {
+    		tempNum = remove("-", tempText);
+			tempNum = left(tempNum, len(tempNum) - 1);
+			tempText = left(tempText, len(tempText) - 2);
+			menuObject[i].iconNum = atoi(tempNum);
+			menuObject[i].buttonText = tempText;
+		}
+	}
+	numObjects = i;
+	numItemsInList = numObjects - 1;		// remove final line with [END]
+}
+
+Function readFileGo()
+{
+    startFileOperations();
+	nfileHandle = fileOpen(fileNameWithPath, _o_rdonly | _o_text);
+	if(nfileHandle >= 0) {
+        while(fileRead(nfileHandle, stringBuffer, FILE_BUF_LENGTH) > 0) {
+            tempString = remove("[END]\n", stringBuffer);
+		}
+		readLines();
+		FileClose(nfileHandle);
+	} else {
+    	trace("Error reading Text and Icons file!");
+	}
+	endFileOperations();
+}
+
+Function sendText()
+{
+	Integer i;
+	for(i = 1 to numObjects) {
+    	buttonIcon[i] = menuObject[i].iconNum;
+		buttonText[i] = menuObject[i].buttonText;
+	}
+}
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH startupDelayPulse
+{
+	readFileGo();
+	wait(50);
+	sendText();
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    WaitForInitializationComplete();
+	fileNameWithPath = "\\NVRAM\\" + File_Name + ".txt";
+}
+
+
