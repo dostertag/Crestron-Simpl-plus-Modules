@@ -77,6 +77,9 @@ STRING_PARAMETER	menuNames[numInputs][25];
    propValidUnits = unitString;
    propDefaultUnit = unitString;
    propDefaultValue = "Crestron Sans Pro";  
+   propList = { "Crestron Sans Pro", "Crestron Sans Pro" }, { "Crestron Sans Pro Light", "Crestron Sans Pro Light" },
+				{ "Crestron Serif", "Crestron Serif" }, { "Crestron Mono", "Crestron Mono" },  { "Segoe UI", "Segoe UI" },
+				{ "Arial", "Arial" };
 #END_PARAMETER_PROPERTIES
 
 #BEGIN_PARAMETER_PROPERTIES normalFontSize
