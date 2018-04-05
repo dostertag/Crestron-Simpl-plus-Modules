@@ -31,6 +31,8 @@ Comments:
 	to clear feedback for all buttons set the buttonActive to a null string ("").
 	when the button on the Cisco panel is released the activeButton output will be set to
 	null string ("").
+	
+	paramGroupIds has to be set to up, down, left, right, center.  
 #HELP_END*/
 /*******************************************************************************************
   DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
