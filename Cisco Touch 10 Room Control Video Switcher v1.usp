@@ -275,6 +275,8 @@ Function Main()
 			break;
 		}
 	}
+	delay(50);
+	createSourceIdentifiers();
 }
 
 
