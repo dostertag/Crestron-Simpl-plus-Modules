@@ -54,7 +54,7 @@ DIGITAL_INPUT 	_skip_, _skip_, _skip_, _skip_,
 				_skip_, _skip_, _skip_, _skip_, 
 				_skip_, _skip_, _skip_, _skip_,
 				_skip_, _skip_, _skip_, _skip_,
-				_skip_, _skip_, connectedFB, _skip_, videoReady[NUM_INPUTS];
+				_skip_, _skip_, connectedFB, sendInputs, videoReady[NUM_INPUTS];
 // ANALOG_INPUT 
 // STRING_INPUT 
 BUFFER_INPUT _skip_, _skip_, fromDevice[BUFFER_SIZE];
@@ -143,7 +143,7 @@ STRING			_sourceIdentifier[NUM_INPUTS][SOURCE_NAME_LEN];
 
 Function addInputToCodec(integer i)
 {
-	makeString(toDevice, "xcomand UserInterface Presentation ExternalSource Add ConnectorID: %d Name: \x22%s\x22 SourceIdentifier: %s Type: %s\n",
+	makeString(toDevice, "xcommand UserInterface Presentation ExternalSource Add ConnectorID: %d Name: \x22%s\x22 SourceIdentifier: %s Type: %s\n",
 							ConnectorID, SourceName[i], _sourceIdentifier[i], IconType[i]); 		
 }
 
@@ -212,6 +212,7 @@ Function processResponse(string gatheredResponse)
 		}
 	}
 }
+
 /*******************************************************************************************
   Event Handlers
   (Uncomment and declare additional event handlers as needed)
@@ -219,9 +220,10 @@ Function processResponse(string gatheredResponse)
 
 PUSH connectedFB
 {
-	trace("%d", _numSignalsDefined);
 	if(_firstPass = 0)
 	{
+		makeString(toDevice, "xFeedback register Event/UserInterface/Presentation/ExternalSource");
+		delay(50);
     	sendInputsToCodec();
 		_firstPass = 1;
 	}
@@ -256,6 +258,11 @@ THREADSAFE CHANGE fromDevice
         	generateUserNotice("Cisco Touch 10 Video Switcher: Error Processing response data");
 		}
 	}
+}
+
+PUSH sendInputs
+{
+	sendInputsToCodec();
 }
 
 /*******************************************************************************************
