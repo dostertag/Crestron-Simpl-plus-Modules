@@ -27,7 +27,7 @@ Comments: adding a temporary video switcher object to touch-10 control
 #DEFAULT_VOLATILE
 #ENABLE_STACK_CHECKING
 #ENABLE_TRACE
-// #ENCODING_ASCII
+#ENCODING_ASCII
 // #ENCODING_UTF16
 // #ENCODING_INHERIT_FROM_PARENT
 // #ENCODING_INHERIT_FROM_PROGRAM
@@ -159,6 +159,7 @@ Function createSourceIdentifiers()
 		tempString = "";
     	for(k = 1 to len(SourceName[i]))
 		{
+			// trace("%s", SourceName[i]);
         	if(byte(SourceName[i], k) = 0x20)
 			{
             	tempString = tempString + "_";	
@@ -169,7 +170,7 @@ Function createSourceIdentifiers()
 			}
 		}
 		_sourceIdentifier[i] = lower(tempString);
-		
+		// trace("%s", _sourceIdentifier[i]);
 	}
 }
 
@@ -218,6 +219,7 @@ Function processResponse(string gatheredResponse)
 
 PUSH connectedFB
 {
+	trace("%d", _numSignalsDefined);
 	if(_firstPass = 0)
 	{
     	sendInputsToCodec();
@@ -271,12 +273,10 @@ Function Main()
 	{
     	if(isSignalDefined(videoReady[i]))
 		{
-        	_numActiveSources = i;
+        	_numSignalsDefined = i;
 			break;
 		}
 	}
 	delay(50);
 	createSourceIdentifiers();
 }
-
-
