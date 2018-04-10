@@ -8,6 +8,11 @@ System Name:
 System Number:
 Programmer:kdo
 Comments: adding a temporary video switcher object to touch-10 control
+UPDATE - the Cisco only seems to be able to associate 1 input with 1 connector at a time.
+This fact, sadly, invalidates what I thought this module could accomplish.  Code here could be
+used as a starting point to dynamically update the touch 10 with an icon and a name for a 
+routed input to the native 'share' tray on the touch 10.  If I'm incorrect, please make a 
+pull request and I'll update accordingly.
 */
 
 /*******************************************************************************************
@@ -193,7 +198,7 @@ Function setInputState(integer i, string state)
 	}
 }
 
-// *e UserInterface Presentation ExternalSource Selected SourceIdentifier: ìappletvî
+// *e UserInterface Presentation ExternalSource Selected SourceIdentifier: ‚Äúappletv‚Äù
 Function processResponse(string gatheredResponse)
 {
 	string trash[250], tempSourceIdentifier[50];
