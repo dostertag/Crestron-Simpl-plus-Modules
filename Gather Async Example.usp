@@ -1,0 +1,115 @@
+ 
+
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Gather Async Example"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+// DIGITAL_INPUT 
+BUFFER_INPUT bufferRx[1024];
+
+// STRING_INPUT 
+
+// DIGITAL_OUTPUT 
+// ANALOG_OUTPUT 
+// STRING_OUTPUT 
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+		 the code that calls them.
+*******************************************************************************************/
+callback GatherEventHandler fnProcessBufferRx(GatherEventArgs Args) {
+	// GatherEvenArgs Structure
+		// STRUCTURE GatherEventArgs {
+		// 	STRING RxString;
+		// 	SIGNED_INTEGER Results;
+		// 	BUFFER_INPUT Input;
+		// 	}
+	string tempString[100];
+	Try {
+		//verify a successful callback
+		if ( Args.Results >= 0 ) {
+			// Remove string from args
+			tempString = Args.RxString;
+			// Parse String
+			}
+		}
+	Catch {
+		GenerateUserError("%s Exception %s", GetSymbolInstanceName(), GetExceptionMessage());
+		}
+	// Rearm must always be the last step...Outside of any error catching or condiitonals in ioder to *Always* restart. 
+	// 	SIGNED_INTEGER RearmGatherAsync (BUFFER_INPUT Input);
+	RearmGatherASync(args.Input);
+	}
+
+
+/***********************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+***********************************************************************************/
+/*
+Threadsafe Change bufferRx {
+	This traditional change event is not needed with GatherASync
+	}
+*/
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main(){
+	// This starts the cycle of gather async at boot.  
+	// [SIGNED_INTEGER] GatherASync (STRING Delimiter, BUFFER_INPUT Input, GatherEventHandler EventHandler, [INTEGER Timeout]);
+	gatherAsync("\x0D", bufferRx, fnProcessBufferRx);
+	}
+
+
+
